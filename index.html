@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neon App Hub</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* --- Global Design & Styling --- */
+        :root {
+            --primary-glow: rgba(0, 255, 255, 0.7);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #0e0e0e;
+            color: #f0f0f0;
+            background-image:
+                radial-gradient(circle at top left, rgba(159, 0, 255, 0.2), transparent 30%),
+                radial-gradient(circle at bottom right, rgba(0, 255, 255, 0.2), transparent 30%);
+            background-attachment: fixed;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        .glass-box {
+            background: rgba(20, 20, 30, 0.5);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 2rem;
+        }
+
+        h1, h2 {
+            font-weight: 700;
+            background: linear-gradient(90deg, #ff00ff, #9f00ff, #00ffff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* --- Buttons --- */
+        .btn {
+            padding: 10px 25px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            font-weight: 700;
+            font-size: 1rem;
+            border: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn:hover {
+            transform: scale(1.05);
+        }
+
+        .btn-solid {
+            background: linear-gradient(90deg, #9f00ff, #ff00ff);
+            color: white;
+            box-shadow: 0 0 10px rgba(255, 0, 255, 0.3);
+        }
+        
+        .btn-solid:hover {
+             box-shadow: 0 0 20px rgba(255, 0, 255, 0.6);
+        }
+
+        /* --- Input Fields --- */
+        input, textarea, select {
+            width: 100%;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            color: #f0f0f0;
+            font-family: 'Poppins', sans-serif;
+            margin-bottom: 1rem;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: var(--primary-glow);
+            box-shadow: 0 0 10px var(--primary-glow);
+        }
+        
+        textarea {
+            min-height: 200px;
+            resize: vertical;
+        }
+
+        /* --- Header --- */
+        .main-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .menu-icon {
+            font-size: 2rem;
+            cursor: pointer;
+        }
+        .header-title {
+            font-size: 1.8rem;
+            text-align: center;
+        }
+        .filters {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .filter-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            padding: 8px 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: all 0.3s ease;
+        }
+        .filter-btn.active, .filter-btn:hover {
+            background: transparent;
+            border: 1px solid var(--primary-glow);
+            box-shadow: 0 0 8px var(--primary-glow);
+        }
+        #search-bar {
+            max-width: 300px;
+            border-radius: 50px;
+            padding-left: 20px;
+        }
+
+        /* --- Side Menu --- */
+        #side-menu {
+            position: fixed;
+            top: 0;
+            left: -300px;
+            width: 300px;
+            height: 100%;
+            z-index: 1000;
+            transition: left 0.3s ease-in-out;
+            padding-top: 60px;
+        }
+        #side-menu.open {
+            left: 0;
+        }
+        #side-menu .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 25px;
+            font-size: 2.5rem;
+            cursor: pointer;
+        }
+        #side-menu nav a {
+            display: block;
+            color: white;
+            text-decoration: none;
+            font-size: 1.2rem;
+            padding: 15px 30px;
+            transition: background-color 0.2s;
+        }
+        #side-menu nav a:hover {
+            background-color: rgba(0, 255, 255, 0.1);
+        }
+        #menu-backdrop {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 999;
+        }
+        #menu-backdrop.visible {
+            display: block;
+        }
+
+        /* --- Views --- */
+        .view {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            padding: 1rem;
+        }
+        .view.active {
+            display: flex;
+        }
+        .form-container {
+            width: 100%;
+            max-width: 600px;
+        }
+        
+        /* --- Item Grid --- */
+        #items-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        .item-card {
+            border-radius: 25px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(20, 20, 30, 0.5);
+            backdrop-filter: blur(12px);
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s;
+        }
+        .item-card:hover {
+            transform: translateY(-5px);
+        }
+        .item-card-logo {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+        .item-card-body {
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+        .item-card-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        .item-card-type {
+            color: #00ffff;
+            margin-bottom: 1rem;
+        }
+        .item-card-footer {
+            margin-top: auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        /* --- Rating System --- */
+        .rating {
+            direction: rtl;
+            unicode-bidi: bidi-override;
+            text-align: left;
+        }
+        .rating > span {
+            display: inline-block;
+            position: relative;
+            font-size: 1.5rem;
+            color: #555;
+            cursor: pointer;
+        }
+        .rating > span:hover:before,
+        .rating > span:hover ~ span:before {
+            content: "★";
+            position: absolute;
+            color: #00ffff;
+        }
+        .rating > span.rated:before,
+        .rating > span.rated ~ span:before {
+             content: "★";
+            position: absolute;
+            color: #00ffff;
+        }
+
+        /* --- Play Modal --- */
+        #play-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: #000;
+            z-index: 2000;
+        }
+        #play-modal iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        .modal-close-btn {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            font-size: 3rem;
+            color: white;
+            background: rgba(0,0,0,0.5);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            line-height: 50px;
+            text-align: center;
+            cursor: pointer;
+            z-index: 2001;
+        }
+
+        /* --- Notification Toast --- */
+        #notification-toast {
+            position: fixed;
+            bottom: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 15px 30px;
+            border-radius: 15px;
+            z-index: 3000;
+            transition: bottom 0.5s ease-in-out;
+            background: rgba(20, 20, 30, 0.8);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--primary-glow);
+            box-shadow: 0 0 15px var(--primary-glow);
+        }
+        #notification-toast.show {
+            bottom: 20px;
+        }
+        
+    </style>
+</head>
+<body>
+
+    <header class="main-header glass-box">
+        <span class="menu-icon">&#9776;</span>
+        <h1 class="header-title">Neon App Hub</h1>
+        <div class="filters">
+            <input type="search" id="search-bar" placeholder="Search...">
+            <button class="filter-btn active" data-filter="All">All</button>
+            <button class="filter-btn" data-filter="Game">Games</button>
+            <button class="filter-btn" data-filter="App">Apps</button>
+        </div>
+    </header>
+
+    <div id="side-menu" class="glass-box">
+        <span class="close-btn">&times;</span>
+        <nav>
+            <a href="#" class="nav-link" data-view="main-view">Home</a>
+            <a href="#" class="nav-link" data-view="profile-view">User Profile</a>
+            <a href="#" class="nav-link" data-view="upload-view">Upload App/Game</a>
+        </nav>
+    </div>
+    <div id="menu-backdrop"></div>
+
+    <main class="container">
+        <!-- Main View: Grid of items -->
+        <section id="main-view" class="view active">
+            <div id="items-grid">
+                <!-- JS will populate this -->
+            </div>
+        </section>
+
+        <!-- Profile View -->
+        <section id="profile-view" class="view">
+            <div class="form-container glass-box">
+                <h2>User Profile</h2>
+                <p style="text-align: center; margin-bottom: 1.5rem; color: #aaa;">This info is required for submissions and notifications.</p>
+                <form id="profile-form">
+                    <input type="text" id="user-name" placeholder="Your Name" required>
+                    <input type="email" id="user-email" placeholder="Your Email" required>
+                    <button type="submit" class="btn btn-solid" style="width:100%">Save Profile</button>
+                </form>
+            </div>
+        </section>
+
+        <!-- Upload View -->
+        <section id="upload-view" class="view">
+            <div class="form-container glass-box">
+                <h2>Submit for Review</h2>
+                <form id="upload-form">
+                    <label for="upload-html">HTML Code</label>
+                    <textarea id="upload-html" required></textarea>
+                    
+                    <label for="upload-title">Title</label>
+                    <input type="text" id="upload-title" required>
+                    
+                    <label for="upload-logo">Logo URL</label>
+                    <input type="url" id="upload-logo" required>
+                    
+                    <label for="upload-type">Type</label>
+                    <select id="upload-type" required>
+                        <option value="Game">Game</option>
+                        <option value="App">App</option>
+                    </select>
+                    
+                    <button type="submit" class="btn btn-solid" style="width:100%">Submit for Review</button>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal for playing the app/game -->
+    <div id="play-modal">
+        <span class="modal-close-btn">&times;</span>
+        <iframe id="play-iframe" srcdoc=""></iframe>
+    </div>
+    
+    <!-- Notification Toast -->
+    <div id="notification-toast"></div>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+    <script>
+        // --- IMPORTANT: ”9æ7”9æ7PASTE YOUR FIREBASE”9æ7”9æ7 CONFIGURATION HERE ---
+        const firebaseConfig = {
+  apiKey: "AIzaSyBK-GCZDQXV1wihUZMg5TdEiqime7yBE80",
+  authDomain: "app-store-61716.firebaseapp.com",
+  databaseURL: "https://app-store-61716-default-rtdb.firebaseio.com",
+  projectId: "app-store-61716",
+  storageBucket: "app-store-61716.firebasestorage.app",
+  messagingSenderId: "853718408081",
+  appId: "1:853718408081:web:20f5525424738c38f4d830"
+};
+        // --- END OF FIREBASE CONFIGURATION ---
+
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const itemsGrid = document.getElementById('items-grid');
+            let allItems = []; 
+            let ratedItems = JSON.parse(localStorage.getItem('ratedItems')) || [];
+
+            // --- VIEW & NAVIGATION MANAGEMENT ---
+            const views = document.querySelectorAll('.view');
+            const navLinks = document.querySelectorAll('.nav-link');
+            const menuIcon = document.querySelector('.menu-icon');
+            const sideMenu = document.getElementById('side-menu');
+            const closeMenuBtn = document.querySelector('#side-menu .close-btn');
+            const menuBackdrop = document.getElementById('menu-backdrop');
+
+            function switchView(viewId) {
+                views.forEach(view => view.classList.remove('active'));
+                document.getElementById(viewId).classList.add('active');
+                sideMenu.classList.remove('open');
+                menuBackdrop.classList.remove('visible');
+            }
+
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    switchView(e.target.dataset.view);
+                });
+            });
+
+            menuIcon.addEventListener('click', () => {
+                sideMenu.classList.add('open');
+                menuBackdrop.classList.add('visible');
+            });
+            closeMenuBtn.addEventListener('click', () => {
+                sideMenu.classList.remove('open');
+                menuBackdrop.classList.remove('visible');
+            });
+            menuBackdrop.addEventListener('click', () => {
+                sideMenu.classList.remove('open');
+                menuBackdrop.classList.remove('visible');
+            });
+
+
+            // --- LOAD & RENDER ITEMS ---
+            const itemsRef = database.ref('items');
+            itemsRef.on('value', (snapshot) => {
+                allItems = [];
+                itemsGrid.innerHTML = '<h2>Loading...</h2>';
+                snapshot.forEach((childSnapshot) => {
+                    allItems.push({ key: childSnapshot.key, ...childSnapshot.val() });
+                });
+                allItems.reverse(); // Show newest first
+                renderItems(allItems);
+            });
+
+            function renderItems(itemsToRender) {
+                itemsGrid.innerHTML = '';
+                if (itemsToRender.length === 0) {
+                    itemsGrid.innerHTML = '<h2>No items found.</h2>';
+                    return;
+                }
+                itemsToRender.forEach(item => {
+                    const card = document.createElement('div');
+                    card.className = 'item-card';
+                    card.innerHTML = `
+                        <img src="${item.logoUrl}" alt="${item.title}" class="item-card-logo">
+                        <div class="item-card-body">
+                            <h3 class="item-card-title">${item.title}</h3>
+                            <p class="item-card-type">${item.type}</p>
+                            <div class="item-card-footer">
+                                <div class="rating" data-item-key="${item.key}">
+                                    ${[5,4,3,2,1].map(i => `<span data-value="${i}" class="${isRated(item.key) ? 'rated' : ''}">★</span>`).join('')}
+                                </div>
+                                <button class="btn btn-solid play-btn">Play</button>
+                            </div>
+                        </div>
+                    `;
+                    itemsGrid.appendChild(card);
+                    
+                    card.querySelector('.play-btn').addEventListener('click', () => openPlayModal(item.htmlCode));
+                    
+                    const stars = card.querySelectorAll('.rating span');
+                    stars.forEach(star => {
+                        star.addEventListener('click', () => {
+                            if (!isRated(item.key)) {
+                                rateItem(item.key, star.dataset.value);
+                                star.parentElement.querySelectorAll('span').forEach(s => s.classList.add('rated'));
+                            } else {
+                                alert("You've already rated this!");
+                            }
+                        });
+                    });
+                });
+            }
+            
+            // --- FILTER & SEARCH ---
+            const filterBtns = document.querySelectorAll('.filter-btn');
+            const searchBar = document.getElementById('search-bar');
+            
+            filterBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    filterBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    filterAndSearch();
+                });
+            });
+            
+            searchBar.addEventListener('input', filterAndSearch);
+            
+            function filterAndSearch() {
+                const activeFilter = document.querySelector('.filter-btn.active').dataset.filter;
+                const searchTerm = searchBar.value.toLowerCase();
+                
+                let filteredItems = allItems;
+                
+                if (activeFilter !== 'All') {
+                    filteredItems = filteredItems.filter(item => item.type === activeFilter);
+                }
+                
+                if (searchTerm) {
+                    filteredItems = filteredItems.filter(item => item.title.toLowerCase().includes(searchTerm));
+                }
+                
+                renderItems(filteredItems);
+            }
+
+            // --- USER PROFILE ---
+            const profileForm = document.getElementById('profile-form');
+            const userNameInput = document.getElementById('user-name');
+            const userEmailInput = document.getElementById('user-email');
+            
+            userNameInput.value = localStorage.getItem('userName') || '';
+            userEmailInput.value = localStorage.getItem('userEmail') || '';
+            
+            profileForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                localStorage.setItem('userName', userNameInput.value);
+                localStorage.setItem('userEmail', userEmailInput.value);
+                alert('Profile saved!');
+                initNotificationListener(); 
+            });
+            
+            // --- USER SUBMISSIONS ---
+            const uploadForm = document.getElementById('upload-form');
+            uploadForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const userName = localStorage.getItem('userName');
+                const userEmail = localStorage.getItem('userEmail');
+                
+                if (!userName || !userEmail) {
+                    alert('Please save your Name and Email in the User Profile section before submitting.');
+                    switchView('profile-view');
+                    return;
+                }
+                
+                const submissionData = {
+                    htmlCode: document.getElementById('upload-html').value,
+                    title: document.getElementById('upload-title').value,
+                    logoUrl: document.getElementById('upload-logo').value,
+                    type: document.getElementById('upload-type').value,
+                    submitterName: userName,
+                    submitterEmail: userEmail,
+                };
+                
+                database.ref('pendingSubmissions').push(submissionData)
+                    .then(() => {
+                        alert('Your submission has been sent for review. Thank you!');
+                        uploadForm.reset();
+                        switchView('main-view');
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        alert('An error occurred. Could not submit.');
+                    });
+            });
+
+            // --- PLAY MODAL ---
+            const playModal = document.getElementById('play-modal');
+            const playIframe = document.getElementById('play-iframe');
+            const modalCloseBtn = document.querySelector('.modal-close-btn');
+
+            function openPlayModal(htmlCode) {
+                const fullScreenCss = `<style>html, body { margin: 0; padding: 0; height: 100vh; width: 100vw; overflow: hidden; } * { box-sizing: border-box; }</style>`;
+                playIframe.srcdoc = fullScreenCss + htmlCode;
+                playModal.style.display = 'block';
+            }
+
+            modalCloseBtn.addEventListener('click', () => {
+                playModal.style.display = 'none';
+                playIframe.srcdoc = ''; 
+            });
+
+            // --- RATING SYSTEM ---
+            function isRated(itemKey) {
+                return ratedItems.includes(itemKey);
+            }
+
+            function rateItem(itemKey, ratingValue) {
+                const itemRef = database.ref(`items/${itemKey}`);
+                itemRef.transaction(item => {
+                    if (item) {
+                        item.ratingSum = (item.ratingSum || 0) + parseInt(ratingValue);
+                        item.ratingCount = (item.ratingCount || 0) + 1;
+                    }
+                    return item;
+                });
+                ratedItems.push(itemKey);
+                localStorage.setItem('ratedItems', JSON.stringify(ratedItems));
+            }
+            
+            // --- NOTIFICATION LISTENER ---
+            const notificationToast = document.getElementById('notification-toast');
+            let notificationListener = null;
+            
+            const sanitizeEmail = (email) => email.replace(/[.#$[\]]/g, "_");
+
+            function initNotificationListener() {
+                const userEmail = localStorage.getItem('userEmail');
+                if (notificationListener) {
+                    notificationListener.off(); 
+                }
+
+                if (userEmail) {
+                    const sanitizedEmail = sanitizeEmail(userEmail);
+                    const notificationsRef = database.ref(`notifications/${sanitizedEmail}`);
+                    notificationListener = notificationsRef;
+                    
+                    notificationsRef.on('child_added', (snapshot) => {
+                        const notification = snapshot.val();
+                        const key = snapshot.key;
+                        
+                        notificationToast.textContent = notification.message;
+                        notificationToast.classList.add('show');
+                        
+                        setTimeout(() => {
+                            notificationToast.classList.remove('show');
+                        }, 5000);
+                        
+                        notificationsRef.child(key).remove();
+                    });
+                }
+            }
+            
+            initNotificationListener(); 
+        });
+    </script>
+
+</body>
+</html>
