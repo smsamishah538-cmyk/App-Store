@@ -7,6 +7,12 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- === ADMOB / ADSENSE SCRIPT === -->
+    <!-- Aapki Publisher ID yahan daal di gayi hai -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6560387888716518"
+     crossorigin="anonymous"></script>
+    
     <style>
         /* --- Global Design & Styling --- */
         :root {
@@ -51,6 +57,17 @@
             -webkit-background-clip: text;
             background-clip: text;
             -webkit-text-fill-color: transparent;
+        }
+        
+        /* --- Ad Placeholder Styling --- */
+        .ad-placeholder {
+            width: 100%;
+            min-height: 90px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 2rem;
+            color: #888;
         }
 
         /* --- Buttons --- */
@@ -354,6 +371,21 @@
     <div id="menu-backdrop"></div>
 
     <main class="container">
+    
+        <!-- === ADMOB BANNER AD UNIT === -->
+        <div class="ad-placeholder">
+            <!-- Aapka Banner Ad Unit yahan daal diya gaya hai -->
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-6560387888716518"
+                 data-ad-slot="3828800147"
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
+            <script>
+                 (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+        </div>
+
         <!-- Main View: Grid of items -->
         <section id="main-view" class="view active">
             <div id="items-grid">
@@ -414,16 +446,16 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <script>
-        // --- IMPORTANT: ”9æ7”9æ7PASTE YOUR FIREBASE”9æ7”9æ7 CONFIGURATION HERE ---
+        // --- IMPORTANT: FIREBASE CONFIGURATION ---
         const firebaseConfig = {
-  apiKey: "AIzaSyBK-GCZDQXV1wihUZMg5TdEiqime7yBE80",
-  authDomain: "app-store-61716.firebaseapp.com",
-  databaseURL: "https://app-store-61716-default-rtdb.firebaseio.com",
-  projectId: "app-store-61716",
-  storageBucket: "app-store-61716.firebasestorage.app",
-  messagingSenderId: "853718408081",
-  appId: "1:853718408081:web:20f5525424738c38f4d830"
-};
+          apiKey: "AIzaSyBK-GCZDQXV1wihUZMg5TdEiqime7yBE80",
+          authDomain: "app-store-61716.firebaseapp.com",
+          databaseURL: "https://app-store-61716-default-rtdb.firebaseio.com",
+          projectId: "app-store-61716",
+          storageBucket: "app-store-61716.firebasestorage.app",
+          messagingSenderId: "853718408081",
+          appId: "1:853718408081:web:20f5525424738c38f4d830"
+        };
         // --- END OF FIREBASE CONFIGURATION ---
 
         firebase.initializeApp(firebaseConfig);
@@ -603,15 +635,54 @@
                     });
             });
 
-            // --- PLAY MODAL ---
+            // --- ADMOB INTERSTITIAL & PLAY MODAL LOGIC ---
+            // Naye variable Interstitial ad ke liye
+            let interstitialAd = null;
+            let adLoaded = false;
+             
+            // Is function se ad load karne ki koshish karenge
+             function preloadInterstitialAd() {
+                try {
+                     (adsbygoogle = window.adsbygoogle || []).push({});
+                     // Note: Yahan par aapki di hui interstitial id ki zaroorat nahi
+                     // AdSense isay page-level-ads ke hisab se khud handle karega
+                     adLoaded = true; // maan lete hain ki ad load ho gaya hai
+                } catch (e) {
+                     console.error("Ad preload failed:", e);
+                     adLoaded = false;
+                }
+             }
+            
+             // page load hotay hi ad preload karne ki koshish karo
+             preloadInterstitialAd();
+
+
             const playModal = document.getElementById('play-modal');
             const playIframe = document.getElementById('play-iframe');
             const modalCloseBtn = document.querySelector('.modal-close-btn');
 
             function openPlayModal(htmlCode) {
-                const fullScreenCss = `<style>html, body { margin: 0; padding: 0; height: 100vh; width: 100vw; overflow: hidden; } * { box-sizing: border-box; }</style>`;
-                playIframe.srcdoc = fullScreenCss + htmlCode;
-                playModal.style.display = 'block';
+                // --- INTERSTITIAL AD DIKHANE KI LOGIC ---
+                // Yahan hum ad dikhane ki koshish karenge
+                if (adLoaded) {
+                    try {
+                        (adsbygoogle = window.adsbygoogle || []).push({
+                           google_ad_client: "ca-pub-6560387888716518",
+                           enable_page_level_ads: true
+                        });
+                        console.log("Interstitial Ad request sent.");
+                     } catch(e) {
+                        console.error("Could not show interstitial ad:", e);
+                     }
+                }
+                
+                // Ad dikhe ya na dikhe, game ko 1 second ke baad start kar do
+                // is se ad ko load hone ka thora time mil jayega.
+                setTimeout(() => {
+                    const fullScreenCss = `<style>html, body { margin: 0; padding: 0; height: 100vh; width: 100vw; overflow: hidden; } * { box-sizing: border-box; }</style>`;
+                    playIframe.srcdoc = fullScreenCss + htmlCode;
+                    playModal.style.display = 'block';
+                }, 800); // 800 millisecond ka intezar
             }
 
             modalCloseBtn.addEventListener('click', () => {
